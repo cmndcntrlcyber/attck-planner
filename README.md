@@ -17,7 +17,12 @@ The application fetches known attack techniques for specific threat actors and u
 - **Customizable API Parameters:** Modify model-specific settings to fine-tune responses.
 
 ---
-
+## Pull & Run the [docker image](https://hub.docker.com/r/cmndcntrl/threat-emulation-planner)
+```
+docker pull cmndcntrl/threat-emulation-planner:latest
+docker run -d --gpus=all -p 8501:8501 --name threat-planner cmndcntrl/threat-emulation-planner
+```
+---
 ## **Project Structure**
 ```
 ├── backend/
