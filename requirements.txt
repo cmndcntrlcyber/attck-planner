@@ -2,3 +2,6 @@ streamlit
 attackcti
 mitreattack-python
 pwntools
+pandas 
+stix2 
+ollama
