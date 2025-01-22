@@ -182,5 +182,3 @@ For support or inquiries, reach out to:
 - GitHub: [cmndcntrlcyber/threat-emulation-planner](https://github.com/cmndcntrlcyber/threat-emulation-planner)
 
 ---
-
-Let me know if you'd like further improvements or additions!
