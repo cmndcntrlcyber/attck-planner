@@ -11,7 +11,7 @@ API_KEY = "sk-523c64b47d074df5a6bb3640c26f790b"
 
 # Model-specific configuration
 MODEL_CONFIG = {
-    "model": "red-team-operator-2",
+    "model": "qwen2.5-coder:3b",
     "system": (
         "You are a highly skilled Red Team software developer specializing in building and deploying security evasion tools. "
         "Your primary programming languages are Rust, C#, C++, C, PowerShell, and WinAPI. "
