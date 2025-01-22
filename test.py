@@ -1,5 +1,6 @@
 import requests
 from base64 import b64encode
+import streamlit as st
 
 # Configuration
 OLLAMA_API_URL = "http://192.168.1.63:11434/api/generate"
@@ -11,12 +12,17 @@ def fetch_techniques_for_actor(actor_name):
     Simulate fetching techniques for a given threat actor.
     Returns dummy techniques for testing.
     """
-    if actor_name.lower() == "apt29":
-        return [
+    threat_actor_data = {
+        "APT29": [
             {"technique_id": "T1071", "technique_name": "Application Layer Protocol"},
             {"technique_id": "T1059", "technique_name": "Command and Scripting Interpreter"}
+        ],
+        "FIN7": [
+            {"technique_id": "T1203", "technique_name": "Exploitation for Client Execution"},
+            {"technique_id": "T1566", "technique_name": "Phishing"}
         ]
-    return []
+    }
+    return threat_actor_data.get(actor_name.upper(), [])
 
 def generate_emulation_plan(actor_name, desired_impact):
     """
@@ -40,22 +46,37 @@ def generate_emulation_plan(actor_name, desired_impact):
         "Authorization": f"Basic {b64encode(f'{USERNAME}:{API_KEY}'.encode()).decode()}",
         "Content-Type": "application/json"
     }
+
     data = {
-        "model": "qwen2.5-coder:3b",
+        "model": "red-team-operator-2",
         "prompt": plan_prompt,
-        "stream": False,
+        "stream": False
     }
 
     try:
         response = requests.post(OLLAMA_API_URL, json=data, headers=headers, timeout=30)
         response.raise_for_status()
-        return response.json().get("response", "No response received")
+        response_json = response.json()
+
+        if 'response' in response_json:
+            return response_json["response"]
+        else:
+            return "Unexpected response format received from Ollama API."
+
     except requests.exceptions.RequestException as e:
         return f"Error communicating with Ollama API: {str(e)}"
 
-# Test the script with APT29
+# Streamlit UI to test the API
+def main():
+    st.title("Test Ollama Threat Emulation Plan")
+
+    threat_actor = st.text_input("Enter Threat Actor (e.g., APT29)")
+    desired_impact = st.selectbox("Select Desired Impact", ["Data Exfiltration", "Credential Theft", "System Disruption"])
+
+    if st.button("Generate Emulation Plan"):
+        with st.spinner("Generating plan..."):
+            result = generate_emulation_plan(threat_actor, desired_impact)
+            st.text_area("Generated Plan", result, height=300)
+
 if __name__ == "__main__":
-    threat_actor = "APT29"
-    impact = "Data Exfiltration"
-    result = generate_emulation_plan(threat_actor, impact)
-    print("Generated Emulation Plan:\n", result)
+    main()
