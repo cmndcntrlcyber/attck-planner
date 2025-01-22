@@ -1,9 +1,9 @@
-# **Adversary Threat Emulation Planner**
+# **ATT&CK Planner**
 
 ---
 
 ## **Project Overview**
-The **Adversary Threat Emulation Planner** is a web-based tool built using **Streamlit**, which utilizes the **MITRE ATT&CK framework** and **Ollama API** to generate adversary emulation plans based on a selected threat actor and desired impact. 
+The **ATT&CK Planner** is a web-based tool built using **Streamlit**, which utilizes the **MITRE ATT&CK framework** and **Ollama API** to generate adversary emulation plans based on a selected threat actor and desired impact. 
 
 The application fetches known attack techniques for specific threat actors and uses the Ollama AI model to generate detailed emulation strategies and mitigation recommendations.
 
