@@ -6,3 +6,4 @@ app/backend/__pycache__/
 venv/
 .env
 .git
+ollama_api.log
