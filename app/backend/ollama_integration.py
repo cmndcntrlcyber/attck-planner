@@ -2,7 +2,18 @@
 
 import requests
 import logging
+import os
+from dotenv import load_dotenv
 from base64 import b64encode
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Read configuration from environment variables
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL")
+USERNAME = os.getenv("USERNAME")
+API_KEY = os.getenv("API_KEY")
+MODEL_NAME = os.getenv("MODEL_NAME")
 
 # Configure logging
 logging.basicConfig(
@@ -10,11 +21,6 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
-
-# Ollama API Configuration
-OLLAMA_API_URL = "http://0.0.0.0:11434/api/generate"
-USERNAME = "cmndcntrl"
-API_KEY = "sk-523c64b47d074df5a6bb3640c26f790b"
 
 def generate_emulation_plan(actor_name, desired_impact, techniques):
     """Generate adversary emulation plan using Ollama API."""
@@ -38,7 +44,7 @@ def generate_emulation_plan(actor_name, desired_impact, techniques):
     }
 
     data = {
-        "model": "red-team-operator-2",
+        "model": MODEL_NAME,
         "prompt": plan_prompt,
         "stream": False
     }
