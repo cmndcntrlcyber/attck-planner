@@ -12,7 +12,7 @@ logging.basicConfig(
 )
 
 # Ollama API Configuration
-OLLAMA_API_URL = "http://localhost:11434/api/generate"
+OLLAMA_API_URL = "http://0.0.0.0:11434/api/generate"
 USERNAME = "cmndcntrl"
 API_KEY = "sk-523c64b47d074df5a6bb3640c26f790b"
 
