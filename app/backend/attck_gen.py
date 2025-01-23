@@ -1,6 +1,6 @@
 import os
 import json
-from langchain.llms import Ollama
+from langchain_community.llms import Ollama
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv

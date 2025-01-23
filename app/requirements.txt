@@ -2,8 +2,9 @@ streamlit
 attackcti
 mitreattack-python
 pwntools
-pandas 
-stix2 
+pandas
+stix2
 ollama
 python-dotenv
 langchain
+langchain-community
