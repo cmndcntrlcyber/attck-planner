@@ -1,78 +1,62 @@
 # backend/ollama_integration.py
 
 import requests
-import streamlit as st
-import json
+import logging
+from base64 import b64encode
+
+# Configure logging
+logging.basicConfig(
+    filename="ollama_api.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 # Ollama API Configuration
 OLLAMA_API_URL = "http://192.168.1.63:11434/api/generate"
 USERNAME = "cmndcntrl"
 API_KEY = "sk-523c64b47d074df5a6bb3640c26f790b"
 
-# Model-specific configuration
-MODEL_CONFIG = {
-    "model": "qwen2.5-coder:3b",
-    "system": (
-        "You are a highly skilled Red Team software developer specializing in building and deploying security evasion tools. "
-        "Your primary programming languages are Rust, C#, C++, C, PowerShell, and WinAPI. "
-        "You excel at advanced evasion techniques bypassing AV and EDR systems using low-level system manipulation, "
-        "fileless attacks, and LOLBAS techniques. Provide actionable adversary emulation plans."
-    ),
-    "options": {
-        "temperature": 0.7,  # Control response randomness
-        "num_ctx": 48225,  # Context length for detailed responses
-        "num_thread": 8,   # Number of CPU threads
-        "num_gpu": 8       # Number of GPUs for acceleration
-    },
-    "stream": False,  # Disable streaming for better handling in Streamlit
-    "format": "json",  # Ensure structured JSON responses
-    "keep_alive": "5m"  # Keep the model loaded for performance
-}
-
 def generate_emulation_plan(actor_name, desired_impact, techniques):
-    """Generate adversary emulation plan using Ollama API with the updated schema."""
+    """Generate adversary emulation plan using Ollama API."""
 
     if not techniques:
+        logging.warning(f"No techniques found for {actor_name}")
         return "No techniques found for the specified threat actor."
 
-    # Constructing the detailed prompt
     technique_details = ', '.join(techniques)
     plan_prompt = f"""
-    Generate an adversary emulation plan for the threat actor {actor_name}.
+    Create an adversary emulation plan for the threat actor {actor_name}.
     Focus on the desired impact: {desired_impact}.
     Use the following known techniques:
     {technique_details}.
-    Provide evasion strategies, mitigation approaches, and actionable insights.
+    Include mitigation strategies where applicable.
     """
 
     headers = {
-        "Authorization": f"Basic {USERNAME}:{API_KEY}",
+        "Authorization": f"Basic {b64encode(f'{USERNAME}:{API_KEY}'.encode()).decode()}",
         "Content-Type": "application/json"
     }
 
-    # Prepare the request payload with updated model configuration
     data = {
-        "model": MODEL_CONFIG["model"],
+        "model": "red-team-operator-2",
         "prompt": plan_prompt,
-        "format": MODEL_CONFIG["format"],
-        "options": MODEL_CONFIG["options"],
-        "system": MODEL_CONFIG["system"],
-        "stream": MODEL_CONFIG["stream"],
-        "keep_alive": MODEL_CONFIG["keep_alive"]
+        "stream": False
     }
 
     try:
-        response = requests.post(OLLAMA_API_URL, json=data, headers=headers)
+        logging.info(f"Requesting emulation plan for {actor_name} with impact {desired_impact}")
+        response = requests.post(OLLAMA_API_URL, json=data, headers=headers, timeout=30)
         response.raise_for_status()
 
-        # Parse JSON response
-        response_data = response.json()
+        response_json = response.json()
 
-        if 'response' in response_data:
-            return response_data["response"]
+        if 'response' in response_json:
+            logging.info(f"Received response for {actor_name}")
+            return response_json["response"]
         else:
+            logging.error(f"Unexpected response format for {actor_name}")
             return "Unexpected response format received from Ollama API."
 
     except requests.exceptions.RequestException as e:
-        st.error(f"Error communicating with Ollama API: {str(e)}")
-        return "Error in generating the plan."
+        logging.error(f"Error communicating with Ollama API: {str(e)}")
+        return f"Error communicating with Ollama API: {str(e)}"
