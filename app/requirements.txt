@@ -5,3 +5,4 @@ pwntools
 pandas 
 stix2 
 ollama
+python-dotenv

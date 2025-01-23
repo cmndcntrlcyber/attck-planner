@@ -11,8 +11,8 @@ COPY . /app
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-# Expose the port for Streamlit
+# Expose the Streamlit port
 EXPOSE 8501
 
-# Command to run the Streamlit app
+# Run the Streamlit app
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
