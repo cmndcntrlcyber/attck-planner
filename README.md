@@ -159,6 +159,7 @@ Generated Emulation Plan:
 
 ## **Future Enhancements**
 - Download as MD or HTML
+- Expand TTPs
 - Post Emulation Plan to [ATT&CK Workbench](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend) object
 - Generate payloads and commands per phase
 
