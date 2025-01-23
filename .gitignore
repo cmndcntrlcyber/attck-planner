@@ -1,4 +1,4 @@
-__pycache__/
+app/backend/__pycache__/
 *.pyc
 *.pyo
 *.pyd
