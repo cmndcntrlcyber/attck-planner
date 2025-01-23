@@ -1,5 +1,0 @@
-2025-01-23 00:43:47,635 - INFO - Requesting emulation plan for APT29 with impact Data Exfiltration
-2025-01-23 00:43:47,638 - ERROR - Error communicating with Ollama API: 404 Client Error: Not Found for url: http://0.0.0.0:11434/api/generate
-2025-01-23 00:43:47,638 - INFO - Plan generated successfully for APT29 in 0.18s
-2025-01-23 01:04:36,323 - INFO - Requesting emulation plan for APT29 with impact Data Exfiltration
-2025-01-23 01:05:01,917 - INFO - Received response for APT29
