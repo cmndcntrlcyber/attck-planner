@@ -51,7 +51,7 @@ def generate_emulation_plan(actor_name, desired_impact, techniques):
 
     try:
         logging.info(f"Requesting emulation plan for {actor_name} with impact {desired_impact}")
-        response = requests.post(OLLAMA_API_URL, json=data, headers=headers, timeout=30)
+        response = requests.post(OLLAMA_API_URL, json=data, headers=headers, timeout=300)
         response.raise_for_status()
 
         response_json = response.json()
