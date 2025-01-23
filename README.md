@@ -158,9 +158,9 @@ Generated Emulation Plan:
 ---
 
 ## **Future Enhancements**
-- Add caching to optimize repeated queries.
-- Implement authentication for multi-user access.
-- Extend adversary emulation coverage using additional threat intelligence sources.
+- Download as MD or HTML
+- Post Emulation Plan to [ATT&CK Workbench](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend) object
+- Generate payloads and commands per phase
 
 ---
 
