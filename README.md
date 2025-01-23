@@ -20,7 +20,7 @@ The application fetches known attack techniques for specific threat actors and u
 ## Pull & Run the [docker image](https://hub.docker.com/r/cmndcntrl/threat-emulation-planner)
 ```
 docker pull cmndcntrl/threat-emulation-planner:1.0
-docker run -d --gpus=all -p 8501:8501 --name threat-planner cmndcntrl/threat-emulation-planner
+docker run -d --gpus=all --add-host=host.docker.internal:host-gateway -p 8501:8501 --name threat-planner cmndcntrl/threat-emulation-planner:1.0
 ```
 ---
 ## **Project Structure**
