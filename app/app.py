@@ -3,6 +3,8 @@
 import streamlit as st
 from backend.threat_lookup import get_threat_actor_techniques
 from backend.ollama_integration import generate_emulation_plan
+from backend.threat_lookup import parse_techniques_from_markdown
+from backend.attck_gen import generate_script, save_script
 import logging
 import time
 
@@ -63,6 +65,35 @@ def format_html(actor_name, impact, plan):
         "</html>"
     ).format(actor_name, impact, plan.replace("\n", "<br>"))
     return html_content
+
+uploaded_file = st.file_uploader("Upload an Emulation Plan (Markdown)", type=["md"])
+
+if uploaded_file:
+    with open("uploaded_plan.md", "wb") as f:
+        f.write(uploaded_file.read())
+
+    techniques = parse_techniques_from_markdown("uploaded_plan.md")
+    
+    st.write(f"Detected {len(techniques)} techniques.")
+
+    for technique in techniques:
+        st.subheader(technique["name"])
+        st.write(technique["description"])
+        if st.button(f"Generate Script for {technique['name']}"):
+            with st.spinner("Generating script..."):
+                script = generate_script(technique["name"], technique["description"])
+                filepath = save_script(script)
+
+                st.success(f"Script Generated: {script['filename']}")
+                with open(filepath, "r") as f:
+                    st.code(f.read(), language=script["language"].lower())
+
+                st.download_button(
+                    label="Download Script",
+                    data=open(filepath).read(),
+                    file_name=script["filename"],
+                    mime="text/plain"
+                )
 
 
 if st.button("Generate Plan"):

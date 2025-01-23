@@ -3,6 +3,8 @@
 import requests
 from stix2 import MemoryStore, Filter
 import streamlit as st
+import re
+from typing import List, Dict
 
 ATTACK_DATA_URL = "https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json"
 
@@ -40,3 +42,22 @@ def get_threat_actor_techniques(actor_name):
     except Exception as e:
         st.error(f"Error querying ATT&CK data: {str(e)}")
         return []
+
+def parse_techniques_from_markdown(file_path: str) -> List[Dict[str, str]]:
+    """Parses techniques from the provided Markdown file."""
+    techniques = []
+    with open(file_path, 'r') as file:
+        content = file.read()
+    
+    pattern = r"\*\*(.*?)\*\*\n- (.*?)\n- Mitigation: (.*?)\n"
+    matches = re.findall(pattern, content)
+
+    for match in matches:
+        technique_name, description, mitigation = match
+        techniques.append({
+            "name": technique_name.strip(),
+            "description": description.strip(),
+            "mitigation": mitigation.strip()
+        })
+    
+    return techniques
