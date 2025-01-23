@@ -6,3 +6,5 @@ pandas
 stix2 
 ollama
 python-dotenv
+langchain
+ast
