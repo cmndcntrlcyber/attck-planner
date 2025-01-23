@@ -49,15 +49,22 @@ def parse_techniques_from_markdown(file_path: str) -> List[Dict[str, str]]:
     with open(file_path, 'r') as file:
         content = file.read()
     
-    pattern = r"\*\*(.*?)\*\*\n- (.*?)\n- Mitigation: (.*?)\n"
-    matches = re.findall(pattern, content)
+    # Regular expression to match technique patterns in the provided document
+    pattern = r"(?P<technique>[^\(]+) \((?P<id>T\d{4}(\.\d{3})?)\)\n\n(?P<description>.*?)\nMitigation: (?P<mitigation>.*?)\n"
+
+    matches = re.finditer(pattern, content, re.DOTALL)
 
     for match in matches:
-        technique_name, description, mitigation = match
+        technique_name = match.group("technique").strip()
+        technique_id = match.group("id").strip()
+        description = match.group("description").strip()
+        mitigation = match.group("mitigation").strip()
+
         techniques.append({
-            "name": technique_name.strip(),
-            "description": description.strip(),
-            "mitigation": mitigation.strip()
+            "name": technique_name,
+            "technique_id": technique_id,
+            "description": description,
+            "mitigation": mitigation
         })
-    
+
     return techniques

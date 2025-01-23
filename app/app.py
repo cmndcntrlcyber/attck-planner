@@ -74,27 +74,31 @@ if uploaded_file:
 
     techniques = parse_techniques_from_markdown("uploaded_plan.md")
     
-    st.write(f"Detected {len(techniques)} techniques.")
+    if techniques:
+        st.success(f"Detected {len(techniques)} techniques.")
 
-    for technique in techniques:
-        st.subheader(technique["name"])
-        st.write(technique["description"])
-        if st.button(f"Generate Script for {technique['name']}"):
-            with st.spinner("Generating script..."):
-                script = generate_script(technique["name"], technique["description"])
-                filepath = save_script(script)
+        for technique in techniques:
+            st.subheader(f"{technique['name']} ({technique['technique_id']})")
+            st.write(f"**Description:** {technique['description']}")
+            st.write(f"**Mitigation:** {technique['mitigation']}")
 
-                st.success(f"Script Generated: {script['filename']}")
-                with open(filepath, "r") as f:
-                    st.code(f.read(), language=script["language"].lower())
+            if st.button(f"Generate Script for {technique['name']}"):
+                with st.spinner("Generating script..."):
+                    script = generate_script(technique['name'], technique['description'])
+                    filepath = save_script(script)
 
-                st.download_button(
-                    label="Download Script",
-                    data=open(filepath).read(),
-                    file_name=script["filename"],
-                    mime="text/plain"
-                )
+                    st.success(f"Script Generated: {script['filename']}")
+                    with open(filepath, "r") as f:
+                        st.code(f.read(), language=script["language"].lower())
 
+                    st.download_button(
+                        label="Download Script",
+                        data=open(filepath).read(),
+                        file_name=script["filename"],
+                        mime="text/plain"
+                    )
+    else:
+        st.error("No techniques detected. Please check the file format.")
 
 if st.button("Generate Plan"):
     with st.spinner("Generating threat emulation plan..."):
