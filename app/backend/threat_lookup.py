@@ -1,70 +1,60 @@
-# backend/threat_lookup.py
-
+import os
 import requests
-from stix2 import MemoryStore, Filter
-import streamlit as st
-import re
-from typing import List, Dict
+import logging
+from dotenv import load_dotenv
 
-ATTACK_DATA_URL = "https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json"
+# Load environment variables
+load_dotenv()
 
-# Load ATT&CK framework data
-def load_attack_data():
-    try:
-        response = requests.get(ATTACK_DATA_URL)
-        response.raise_for_status()
-        return MemoryStore(stix_data=response.json()["objects"])
-    except requests.exceptions.RequestException as e:
-        st.error(f"Error fetching ATT&CK data: {str(e)}")
-        return None
+ATTACK_JSON_URL = os.getenv(
+    "ATTACK_JSON_URL",
+    "https://raw.githubusercontent.com/mitre/cti/refs/heads/master/enterprise-attack/enterprise-attack.json"
+)
 
-attack_data = load_attack_data()
+# Configure logging
+logging.basicConfig(
+    filename="threat_lookup.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 def get_threat_actor_techniques(actor_name):
-    """Retrieve techniques used by a threat actor from ATT&CK data."""
-    if not attack_data:
-        return []
+    """
+    Fetches techniques associated with a given threat actor (group).
+    """
+    logging.info(f"Fetching ATT&CK data for actor: {actor_name}")
 
     try:
-        filters = [
-            Filter('type', '=', 'intrusion-set'),
-            Filter('name', '=', actor_name)
-        ]
-        group = attack_data.query(filters)
-        if group:
-            group_id = group[0]['id']
-            relationships = attack_data.relationships(group_id, 'uses')
-            techniques = [attack_data.get(r.target_ref) for r in relationships]
-            return [tech['name'] for tech in techniques if tech and tech['type'] == 'attack-pattern']
-        else:
-            st.error("Threat actor not found.")
-            return []
+        response = requests.get(ATTACK_JSON_URL, timeout=60)
+        response.raise_for_status()
+        attack_data = response.json()
     except Exception as e:
-        st.error(f"Error querying ATT&CK data: {str(e)}")
+        logging.error(f"Error retrieving ATT&CK data: {e}")
         return []
 
-def parse_techniques_from_markdown(file_path: str) -> List[Dict[str, str]]:
-    """Parses techniques from the provided Markdown file."""
-    techniques = []
-    with open(file_path, 'r') as file:
-        content = file.read()
+    # Extract groups (threat actors)
+    groups = [obj for obj in attack_data["objects"] if obj["type"] == "intrusion-set"]
+
+    # Extract techniques
+    techniques = {obj["id"]: obj for obj in attack_data["objects"] if obj["type"] == "attack-pattern"}
+
+    # Find the threat actor
+    found_group = next((g for g in groups if g["name"].lower() == actor_name.lower()), None)
     
-    # Regular expression to match technique patterns in the provided document
-    pattern = r"(?P<technique>[^\(]+) \((?P<id>T\d{4}(\.\d{3})?)\)\n\n(?P<description>.*?)\nMitigation: (?P<mitigation>.*?)\n"
+    if not found_group:
+        logging.warning(f"No matching threat actor found for: {actor_name}")
+        return []
 
-    matches = re.finditer(pattern, content, re.DOTALL)
+    group_id = found_group["id"]
 
-    for match in matches:
-        technique_name = match.group("technique").strip()
-        technique_id = match.group("id").strip()
-        description = match.group("description").strip()
-        mitigation = match.group("mitigation").strip()
+    # Retrieve associated techniques
+    associated_techniques = []
+    for relation in attack_data["objects"]:
+        if relation.get("type") == "relationship" and relation.get("source_ref") == group_id:
+            target_id = relation.get("target_ref")
+            if target_id in techniques:
+                technique = techniques[target_id]
+                associated_techniques.append(technique["name"])
 
-        techniques.append({
-            "name": technique_name,
-            "technique_id": technique_id,
-            "description": description,
-            "mitigation": mitigation
-        })
-
-    return techniques
+    logging.info(f"Found {len(associated_techniques)} techniques for {actor_name}")
+    return associated_techniques

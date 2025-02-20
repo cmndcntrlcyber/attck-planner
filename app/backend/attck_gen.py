@@ -22,11 +22,17 @@ SCRIPT_GEN_PROMPT = PromptTemplate(
     Choose the best programming language (C, C++, Python, PowerShell, Rust, JS).
     Provide code with explanations and recommended filename.
 
-    Output format (JSON):
+    Output format (Markdown):
     {{
-        "code": "<script_code>",
-        "language": "<chosen_language>",
-        "filename": "<suggested_filename>"
+        [#TACTIC GROUP]
+        [##TECHNIQUE ID]
+        [###DESCRIPTION]
+        [DESCRIPTION]
+        [###INSTRUCTIONS]
+        [INSTRUCTIONS]
+        ```[PROGRAMMING LANGUAGE]
+        [EXPLOIT CODE]
+        ```
     }}
     """
 )

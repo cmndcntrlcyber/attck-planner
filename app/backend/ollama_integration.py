@@ -7,56 +7,42 @@ from base64 import b64encode
 # Load environment variables
 load_dotenv()
 
-# Read configuration from environment variables
 OLLAMA_API_URL = os.getenv("OLLAMA_API_URL")
 USERNAME = os.getenv("USERNAME")
 API_KEY = os.getenv("API_KEY")
-MODEL_NAME = os.getenv("MODEL_NAME")
+MODEL_NAME = os.getenv("MODEL_NAME", "red-team-dev")
 
-# Configure logging
 logging.basicConfig(
     filename="ollama_api.log",
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-def get_technique_info(technique):
-    """
-    Retrieves the MITRE Tactic and Technique ID for a given known technique.
-    Example output: 'Abuse Elevation Control Mechanism: Elevated Execution with Prompt: T1548.004, T1548, TA0005, TA0005'
-    """
-    # This is an example mapping; in production, fetch dynamically from MITRE ATT&CK API or STIX data.
-    technique_mapping = {
-        "Abuse Elevation Control Mechanism": "T1548.004, T1548, TA0005, TA0005",
-        "Pass the Hash": "T1550.002, T1550, TA0003, TA0004",
-        "Credential Dumping": "T1003, T1003.001, TA0006, TA0004",
-        "Persistence via Registry": "T1547.001, T1547, TA0003",
-    }
-
-    tactic_info = technique_mapping.get(technique, "Unknown ID")
-    return f"{technique}: {tactic_info}"
-
-
 def generate_emulation_plan(actor_name, desired_impact, techniques):
     """
     Generates an adversary emulation plan using the Ollama API.
-    Includes MITRE tactic and technique IDs.
     """
     if not techniques:
         logging.warning(f"No techniques found for {actor_name}")
         return "No techniques found for the specified threat actor."
 
-    # Fetch technique info with tactic and technique ID for each known technique
-    technique_details = "\n".join([get_technique_info(tech) for tech in techniques])
+    # Build the emulation plan prompt dynamically
+    technique_details = "\n".join([f"- {tech}" for tech in techniques])
 
     plan_prompt = f"""
     Create an adversary emulation plan for the threat actor {actor_name}.
     Focus on the desired impact: {desired_impact}.
-    Use the following known techniques with MITRE ATT&CK tactic and technique IDs:
-    
+    Use the following known techniques with MITRE ATT&CK:
+
     {technique_details}
 
-    Include mitigation strategies where applicable.
+    For each technique, provide:
+    - **Description**
+    - **Instructions**
+    - **Recommended programming language**
+    - **Exploit script**
+
+    Format output as Markdown.
     """
 
     headers = {
