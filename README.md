@@ -56,7 +56,7 @@ Ensure the following software is installed before running the project:
 
 ### **1. Clone the Repository**
 ```bash
-git clone https://github.com/yourusername/threat-emulation-planner.git
+git clone https://github.com/cmndcntrl/threat-emulation-planner.git
 cd threat-emulation-planner
 ```
 
