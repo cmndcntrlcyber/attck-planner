@@ -8,3 +8,6 @@ ollama
 python-dotenv
 langchain
 langchain-community
+mcp
+tavily-python
+httpx

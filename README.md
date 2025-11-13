@@ -13,6 +13,7 @@ The application fetches known attack techniques for specific threat actors and u
 - **Threat Actor Lookup:** Retrieve known MITRE ATT&CK techniques used by a specified adversary.
 - **Impact Selection:** Choose a desired impact (e.g., Data Exfiltration, Credential Theft, System Disruption).
 - **AI-Powered Plan Generation:** Leverage Ollama's Red Team Operator model to generate emulation plans.
+- **Real-Time Threat Intelligence:** Integrated with Tavily MCP for up-to-date threat intelligence and context enrichment.
 - **User-Friendly Interface:** Built with Streamlit for quick and easy interaction.
 - **Customizable API Parameters:** Modify model-specific settings to fine-tune responses.
 
@@ -25,19 +26,23 @@ docker run -d --gpus=all --add-host=host.docker.internal:host-gateway -p 8501:85
 ---
 ## **Project Structure**
 ```
-├── backend/
-│   ├── __init__.py
-│   ├── threat_lookup.py         # Fetch threat actor techniques from ATT&CK framework
-│   ├── ollama_integration.py    # Interact with Ollama API to generate plans
+├── app/
+│   ├── backend/
+│   │   ├── __init__.py
+│   │   ├── threat_lookup.py         # Fetch threat actor techniques from ATT&CK framework
+│   │   ├── ollama_integration.py    # Interact with Ollama API to generate plans
+│   │   ├── tavily_mcp.py            # Tavily MCP integration for threat intelligence
+│   │   ├── attck_gen.py             # Script generation using LangChain
+│   │   ├── get_tactics.py           # Extract tactics from techniques
+│   │
+│   ├── app.py                       # Streamlit application entry point
+│   ├── requirements.txt             # Python dependencies
+│   ├── Dockerfile                   # Docker configuration
 │
-├── data/
-│   ├── sample_stix_data.json    # Sample MITRE ATT&CK STIX data (for testing)
-│
-├── test.py                      # Simple test script to verify API functionality
-├── app.py                        # Streamlit application entry point
-├── docker-compose.yml             # Docker configuration for deployment
-├── requirements.txt               # Python dependencies
-├── README.md                      # Project documentation (this file)
+├── test.py                          # Simple test script to verify API functionality
+├── .env.example                     # Example environment configuration
+├── .gitignore                       # Git ignore patterns
+├── README.md                        # Project documentation (this file)
 ```
 
 ---
@@ -107,13 +112,46 @@ Modify the **Ollama API URL** inside `backend/ollama_integration.py` if needed:
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 ```
 
-Set up credentials inside `.env` (optional):
+### **Tavily MCP Setup**
+
+The application now integrates with Tavily MCP to provide real-time threat intelligence and context enrichment during plan generation.
+
+**Step 1: Get Tavily API Key**
+1. Visit [https://tavily.com](https://tavily.com)
+2. Sign up for a free account
+3. Generate an API key from your dashboard
+
+**Step 2: Configure Environment Variables**
+
+Copy the example environment file and add your credentials:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and add your configuration:
 
 ```
-OLLAMA_API_URL=http://localhost:11434
-USERNAME=cmndcntrl
-API_KEY=your_api_key_here
+# Ollama Configuration
+OLLAMA_API_URL=http://localhost:11434/api/generate
+USERNAME=your_username
+API_KEY=your_api_key
+MODEL_NAME=red-team-dev
+
+# Tavily MCP Configuration
+TAVILY_API_KEY=your_tavily_api_key_here
+ENABLE_TAVILY=true
 ```
+
+**Step 3: Understanding Tavily Integration**
+
+When enabled, Tavily MCP will:
+- Search for recent threat intelligence about the specified threat actor
+- Gather real-world examples and case studies
+- Enrich the AI-generated plan with up-to-date security research
+- Include references from trusted sources (MITRE, Unit42, Mandiant, CrowdStrike, etc.)
+
+To disable Tavily integration, set `ENABLE_TAVILY=false` in your `.env` file.
 
 ---
 
